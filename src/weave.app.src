@@ -1,4 +1,4 @@
-{application, flowcompiler,
+{application, weave,
  [
   {description, "Flow Compiler"},
   {vsn, "0.1"},

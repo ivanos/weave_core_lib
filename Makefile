@@ -1,6 +1,6 @@
 APPS = kernel stdlib sasl erts ssl tools runtime_tools crypto inets \
 	public_key mnesia syntax_tools compiler
-COMBO_PLT = $(HOME)/.flowcompiler_combo_dialyzer_plt
+COMBO_PLT = $(HOME)/.weave_combo_dialyzer_plt
 
 .PHONY: all compile deps test clean distclean ct
 
@@ -44,7 +44,7 @@ dev: compile
 	-config deps/loom/simple_ne/rel/files/sys.config \
 	-name weave@127.0.0.1 \
 	-setcookie dobby \
-	-eval "{ok, _} = application:ensure_all_started(flowcompiler)"
+	-eval "{ok, _} = application:ensure_all_started(weave)"
 
 compile test clean: rebar
 

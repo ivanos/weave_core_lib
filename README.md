@@ -1,2 +1,2 @@
-# flowcompiler
+# Weave
 Flow Compiler

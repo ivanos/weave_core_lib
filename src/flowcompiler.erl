@@ -80,7 +80,7 @@ weave(JSONFileOrNodeName, SourceS, DestinationS, SwitchesS, IsDemo) ->
     application:load(of_driver),
     SwitchesS =:= [] orelse application:set_env(of_driver, listen, false),
 
-    {ok, _} = application:ensure_all_started(flowcompiler),
+    {ok, _} = application:ensure_all_started(weave),
     connect_or_load_json(JSONFileOrNodeName),
 
     Source = list_to_binary(SourceS),
@@ -273,7 +273,7 @@ tap(JSONFileOrNodeName, SourceS, DestinationS, SwitchesS) ->
     application:load(of_driver),
     SwitchesS =:= [] orelse application:set_env(of_driver, listen, false),
 
-    {ok, _} = application:ensure_all_started(flowcompiler),
+    {ok, _} = application:ensure_all_started(weave),
 
     connect_or_load_json(JSONFileOrNodeName),
 

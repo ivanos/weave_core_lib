@@ -17,7 +17,7 @@ main() ->
     application:set_env(of_driver, listen, false),
 
     {ok, _} = application:ensure_all_started(dobby),
-    {ok, _} = application:ensure_all_started(flowcompiler),
+    {ok, _} = application:ensure_all_started(weave),
     %% Wait for Dobby's Mnesia table.
     ok = mnesia:wait_for_tables([identifier], 10000),
 
