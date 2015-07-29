@@ -6,8 +6,9 @@ tool.
 
 Weave needs access to a Dobby database.  There are two ways of
 providing this: either specify the Erlang node name of a running Dobby
-instance, or provide a JSON file that Weave imports into a fresh
-internal Dobby instance.
+instance, or provide a JSON file that Weave imports into an internal
+Dobby instance.  The contents of this Dobby instance is kept in the
+Mnesia directory.  To clear the local database, remove this directory.
 
 Weave also needs connections to the relevant OpenFlow switches.  If no
 switches are specified on the command line, Weave will listen on port
@@ -54,6 +55,20 @@ As described in the introduction, `JSON-FILE-OR-NODE` is either a JSON
 file or the node name of a running Dobby node, and one or more switch
 addresses may be specified at the end of the command line.
 
+For example, to create a flow from `foo` to `bar` using a Dobby node
+running on the same host, waiting for switches to connect:
+
+```
+./weave dobby@127.0.0.1 foo bar
+```
+
+To read network information from a JSON file, and connect to two
+switches specified by IP addresses:
+
+```
+./weave info.json foo bar 10.0.0.1 10.0.0.2
+```
+
 ## Install tap rule
 
 ```
@@ -68,3 +83,10 @@ This is unidirectional: it applies to packets sent from `SOURCE` to
 The tap rule is added at _each_ hop in the flow, so if there are three
 switches between `SOURCE` and `DESTINATION`, the controller will get
 three copies of each packet.
+
+For example, to tap packets going from `foo` to `bar`, using a Dobby
+node running on the same host, and connecting to a specific switch:
+
+```
+./weave -tap dobby@127.0.0.1 foo bar 10.0.0.1
+```
