@@ -5,10 +5,14 @@ flow between two entities in the network.  To use it, run the `weave`
 tool.
 
 Weave needs access to a Dobby database.  There are two ways of
-providing this: either specify the Erlang node name of a running Dobby
-instance, or provide a JSON file that Weave imports into an internal
-Dobby instance.  The contents of this Dobby instance is kept in the
-Mnesia directory.  To clear the local database, remove this directory.
+providing this:
+
+* specify the Erlang node name of a running Dobby instance,
+  e.g. `dobby@127.0.0.1`
+
+* provide a JSON file that Weave imports into an internal Dobby
+  instance.  The contents of this Dobby instance is kept in the Mnesia
+  directory.  To clear the local database, remove this directory.
 
 Weave also needs connections to the relevant OpenFlow switches.  If no
 switches are specified on the command line, Weave will listen on port
@@ -18,8 +22,8 @@ hostname or IP address of each switch as command line arguments.
 Those can optionally be followed by a colon and a port number, to use
 a nonstandard port, e.g. `192.168.1.1:16653`.
 
-Weave can perform two different actions: create a net flow between two
-entities, or install a tap rule.  The former is the default.  The
+Weave can perform two different actions: *create a net flow* between two
+entities, or *install a tap rule*.  The former is the default.  The
 latter is invoked by specifying `-tap` as the first argument.
 
 ## Create flow between entities
