@@ -2,7 +2,7 @@
 
 set -e
 
-CONFIG_FILE=deps/loom/simple_ne/rel/files/sys.config
+CONFIG_FILE=sys.config
 
 if [ ! -e "$CONFIG_FILE" ]; then
     echo "Config file not present. Run 'make' first." >&2

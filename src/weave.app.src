@@ -8,7 +8,9 @@
                   stdlib,
                   lager,
 		  dobby_oflib,
-		  simple_ne
+                  of_driver,
+                  ofs_handler
                  ]},
+  {mod, {weave_app, {}}},
   {env, []}
  ]}.

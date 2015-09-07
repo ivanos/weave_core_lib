@@ -185,7 +185,7 @@ connect_to_dobby(NodeName) ->
     end.
 
 wait_for_switch({Dpid, _, _} = FlowRule, Remaining) ->
-    case lists:keymember(binary_to_list(Dpid), 2, AllSwitches = simple_ne_logic:switches()) of
+    case weave_ofsh:is_connected(Dpid) of
         true ->
             io:format("Switch ~s is online\n", [Dpid]),
             Remaining;
@@ -193,6 +193,7 @@ wait_for_switch({Dpid, _, _} = FlowRule, Remaining) ->
             io:format("Timeout waiting for switch ~s\n", [Dpid]),
             Remaining;
         false ->
+            AllSwitches = weave_ofsh:all_connected(),
             io:format("Switch ~s is offline; waiting... (~p)\n", [Dpid, AllSwitches]),
             timer:sleep(1000),
             wait_for_switch(FlowRule, Remaining - 1)
