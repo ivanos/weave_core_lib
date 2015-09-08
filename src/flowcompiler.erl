@@ -52,7 +52,29 @@ lookup_dpid({DobbyId, OFVersion, FlowMod} = FlowRule) ->
 
 send_flow_rules({Dpid, OFVersion, {Matches, Instr, Opts}}) when is_binary(Dpid) ->
     Msg = of_msg_lib:flow_add(OFVersion, Matches, Instr, Opts),
-    {ok, noreply} = ofs_handler:sync_send(binary_to_list(Dpid), Msg),
+    case ofs_handler:sync_send(binary_to_list(Dpid), Msg) of
+        {ok, noreply} ->
+            ok;
+        {ok, OfpMessage} ->
+            {Name, _Xid, Result} = of_msg_lib:decode(OfpMessage),
+            case Name of
+                error_msg ->
+                    Type = proplists:get_value(type, Result),
+                    Code = proplists:get_value(code, Result),
+                    Data = proplists:get_value(data, Result),
+                    case Data of
+                        <<>> ->
+                            io:format(standard_error, "Error response from switch: ~p, ~p~n",
+                                      [Type, Code]);
+                        _ ->
+                            io:format(standard_error, "Error response from switch: ~p, ~p. Data: ~p~n",
+                                      [Type, Code, Data])
+                    end,
+                    halt(1);
+                _ ->
+                    io:format("Response from switch: ~p~n", [Result])
+            end
+    end,
     ok.
 
 main() ->
