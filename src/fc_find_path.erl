@@ -94,12 +94,6 @@ flow_rules(Path, Graph, Endpoint1, Endpoint2) ->
 flow_rules([{_, _Endpoint, _}], _Graph, FlowRules, _Endpoint1, _Endpoint2) ->
     %% Nothing more to do.
     FlowRules;
-flow_rules([{_, of_port, _}, bound_to | [{_, of_port, _} | _] = Tail], Graph, FlowRules, Endpoint1, Endpoint2) ->
-    flow_rules(Tail, Graph, FlowRules, Endpoint1, Endpoint2);
-flow_rules([{_, of_port, _}, bound_to | [{_, _Endpoint, _} | _] = Tail], Graph, FlowRules, Endpoint1, Endpoint2) ->
-    flow_rules(Tail, Graph, FlowRules, Endpoint1, Endpoint2);
-flow_rules([{_, _Endpoint, _}, bound_to | [{_, of_port, _} | _] = Tail], Graph, FlowRules, Endpoint1, Endpoint2) ->
-    flow_rules(Tail, Graph, FlowRules, Endpoint1, Endpoint2);
 flow_rules([{Port1, of_port, _}, part_of, {SwitchId, of_switch, _SwitchMetadata},
 	    part_of | [{Port2, of_port, _} | _] = Tail], Graph, FlowRules,
            Endpoint1 = {Ip1, Netmask1}, Endpoint2 = {Ip2, Netmask2}) ->
@@ -166,7 +160,9 @@ flow_rules([{Port1, of_port, _}, part_of, {SwitchId, of_switch, _SwitchMetadata}
     NewRules = [IpTrafficThere, IpBroadcastThere, ArpPacketsThere,
                 IpTrafficBack, IpBroadcastBack, ArpPacketsBack],
     NewFlowRules = [{SwitchId, ?OF_VERSION, NewRule} || NewRule <- NewRules] ++ FlowRules,
-    flow_rules(Tail, Graph, NewFlowRules, Endpoint1, Endpoint2).
+    flow_rules(Tail, Graph, NewFlowRules, Endpoint1, Endpoint2);
+flow_rules([{_, _Type1, _}, _LinkType | [{_, _Type2, _} | _] = Tail], Graph, FlowRules, Endpoint1, Endpoint2) ->
+    flow_rules(Tail, Graph, FlowRules, Endpoint1, Endpoint2).
 
 edges_between(Id1, Id2, Graph) ->
     OutEdges1 = digraph:out_edges(Graph, Id1),
@@ -260,17 +256,13 @@ hub_flow_rules(SourceEndpoint, TargetEndpoints) ->
 bridge_points([{_, _Endpoint, _}]) ->
     %% Nothing more to do.
     [];
-bridge_points([{_, of_port, _}, bound_to | [{_, of_port, _} | _] = Tail]) ->
-    bridge_points(Tail);
-bridge_points([{_, of_port, _}, bound_to | [{_, _Endpoint, _} | _] = Tail]) ->
-    bridge_points(Tail);
-bridge_points([{_, _Endpoint, _}, bound_to | [{_, of_port, _} | _] = Tail]) ->
-    bridge_points(Tail);
 bridge_points([{Port1, of_port, _}, part_of, {SwitchId, of_switch, _SwitchMetadata},
               part_of | [{Port2, of_port, _} | _] = Tail]) ->
     BridgeThere = {{SwitchId, Port1}, [Port2]},
     BridgeBack = {{SwitchId, Port2}, [Port1]},
-    [BridgeThere, BridgeBack] ++ bridge_points(Tail).
+    [BridgeThere, BridgeBack] ++ bridge_points(Tail);
+bridge_points([{_, _Type1, _}, _LinkType | [{_, _Type2, _} | _] = Tail]) ->
+    bridge_points(Tail).
 
 combine_bridge_points([]) ->
     [];
@@ -371,16 +363,12 @@ tap_flow_rules(SourceEndpoint, TargetEndpoint) ->
 tap_points([{_, _Endpoint, _}]) ->
     %% Nothing more to do.
     [];
-tap_points([{_, of_port, _}, bound_to | [{_, of_port, _} | _] = Tail]) ->
-    tap_points(Tail);
-tap_points([{_, of_port, _}, bound_to | [{_, _Endpoint, _} | _] = Tail]) ->
-    tap_points(Tail);
-tap_points([{_, _Endpoint, _}, bound_to | [{_, of_port, _} | _] = Tail]) ->
-    tap_points(Tail);
 tap_points([{Port1, of_port, _}, part_of, {SwitchId, of_switch, _SwitchMetadata},
               part_of | [{Port2, of_port, _} | _] = Tail]) ->
     Tap = {SwitchId, Port1, Port2},
-    [Tap] ++ tap_points(Tail).
+    [Tap] ++ tap_points(Tail);
+tap_points([{_, _Type1, _}, _LinkType | [{_, _Type2, _} | _] = Tail]) ->
+    tap_points(Tail).
 
 tap_flow_rule({SwitchId, InPort, OutPort}) when is_binary(InPort) ->
     InPortNo = fc_utils:id_to_port_no(InPort),
