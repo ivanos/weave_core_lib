@@ -17,7 +17,7 @@
 setup_flow(Source, Destination)
   when is_binary(Source), is_binary(Destination) ->
     FlowRules = fc_find_path:path_flow_rules(Source, Destination),
-    lists:foreach(fun send_flow_rules/1, FlowRules),
+    lists:foreach(fun send_flow_rules/1, lookup_dpids(FlowRules)),
     FlowModIds =
         lists:map(
           fun(DatapathFlowMod) ->
