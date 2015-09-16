@@ -17,14 +17,15 @@
 setup_flow(Source, Destination)
   when is_binary(Source), is_binary(Destination) ->
     FlowRules = fc_find_path:path_flow_rules(Source, Destination),
-    lists:foreach(fun send_flow_rules/1, lookup_dpids(FlowRules)),
+    DpidFlowRules = lookup_dpids(FlowRules),
+    lists:foreach(fun send_flow_rules/1, DpidFlowRules),
     FlowModIds =
         lists:map(
           fun(DatapathFlowMod) ->
                   {ok, FlowModId} =
                       dobby_oflib:publish_dp_flow_mod(<<"flowcompiler">>, DatapathFlowMod),
                   FlowModId
-          end, FlowRules),
+          end, DpidFlowRules),
     dobby_oflib:publish_net_flow(
       <<"flowcompiler">>,
       Source,
@@ -152,14 +153,14 @@ weave(JSONFileOrNodeName, SourceS, DestinationS, SwitchesS, IsDemo) ->
                   {ok, FlowModId} =
                       dobby_oflib:publish_dp_flow_mod(<<"flowcompiler">>, DatapathFlowMod),
                   FlowModId
-          end, FlowRules),
+          end, DpidFlowRules),
     %% TODO: do something sensible for Destination for hub flow rules
     %% dobby_oflib:publish_net_flow(
     %%   <<"flowcompiler">>,
     %%   Source,
     %%   Destination,
     %%   FlowModIds),
-    io:format("~b rules published\n", [length(FlowRules)]),
+    io:format("~b rules published\n", [length(DpidFlowRules)]),
     %% Attempt to flush Mnesia tables
     mnesia:stop(),
     halt(0).
